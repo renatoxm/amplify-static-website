@@ -1,37 +1,65 @@
 /* eslint-disable @typescript-eslint/no-useless-constructor */
-import { RemovalPolicy, Stack, StackProps } from 'aws-cdk-lib';
+import * as dotenv from 'dotenv'
+import { RemovalPolicy, Stack, StackProps, CfnOutput } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-import * as codecommit from "aws-cdk-lib/aws-codecommit";
-import { App, CodeCommitSourceCodeProvider } from "@aws-cdk/aws-amplify-alpha";
+import { App, GitHubSourceCodeProvider, AutoBranchCreation } from "@aws-cdk/aws-amplify-alpha";
+import { ManagedPolicy, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
+import { SecretValue } from 'aws-cdk-lib';
+import buildSpec from './buildSpec';
+
+dotenv.config()
+
 
 export class AmplifyInfraStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
-    // Part 1 [Optional] - Creation of the source control repository
-    const amplifyReactSampleRepo = new codecommit.Repository(
-      this,
-      "AmplifyReactTestRepo",
-      {
-        repositoryName: "amplify-react-test-repo",
-        description:
-          "CodeCommit repository that will be used as the source repository for the sample react app and the cdk app",
-      }
-    );
+    const role = new Role(this, 'AmplifyRoleWebApp', {
+      assumedBy: new ServicePrincipal('amplify.amazonaws.com'),
+      description: 'Custom role permitting resources creation from Amplify',
+      managedPolicies: [ManagedPolicy.fromAwsManagedPolicyName('AdministratorAccess-Amplify')],
+    });
+
+    const owner: string = process.env.GIT_USER || '';
+    const repository: string = process.env.GIT_REPO || '';
+
+    const sourceCodeProvider = new GitHubSourceCodeProvider({
+      // GitHub token should be saved in a secure place, we recommend AWS Secret Manager:
+      oauthToken: SecretValue.secretsManager('GITHUB_TOKEN_KEY'), // replace GITHUB_TOKEN_KEY by the name of the Secrets Manager resource storing your GitHub token
+      owner,
+      repository,
+    });
+
+    const autoBranchCreation: AutoBranchCreation = {
+      autoBuild: true,
+      patterns: ['feature/*'],
+      pullRequestPreview: true,
+    };
     
-    //Destroy this resource if 'cdk destroy' is invoked. Default is RETAIN
-    amplifyReactSampleRepo.applyRemovalPolicy(RemovalPolicy.DESTROY);
+    const autoBranchDeletion = true;
 
     // Part 2 - Creation of the Amplify Application
     const amplifyApp = new App(this, "sample-react-app ", {
-      sourceCodeProvider: new CodeCommitSourceCodeProvider({
-        repository: amplifyReactSampleRepo,
-      }),
+      appName: 'React basic app',
+      description: 'My React APP deployed with Amplify',
+      role,
+      sourceCodeProvider,
+      buildSpec,
+      autoBranchCreation,
+      autoBranchDeletion
     });
 
     amplifyApp.applyRemovalPolicy(RemovalPolicy.DESTROY);
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const masterBranch = amplifyApp.addBranch("master");
-    }
+    const mainBranch = amplifyApp.addBranch("master", {
+      autoBuild: true, // set to true to automatically build the app on new pushes
+      stage: "PRODUCTION",
+    });
+
+    new CfnOutput(this, 'appId', {
+      value: amplifyApp.appId,
+    });
+  
+  }
 }
