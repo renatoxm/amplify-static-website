@@ -25,11 +25,7 @@ npm run build
 cdk deploy
 ```
 
-This will create the CodeCommit repository which can be used as the source repository for the sample React app and cdk app. Commit the “amplify-sample-app” folder (which contains the sample React app and the cdk code) to the repository using standard git commands.
-
-[Create a commit in AWS CodeCommit](https://docs.aws.amazon.com/codecommit/latest/userguide/how-to-create-commit.html)
-
-[Setting up for AWS CodeCommit](https://docs.aws.amazon.com/codecommit/latest/userguide/setting-up.html)
+Commit the “amplify-sample-app” folder (which contains the sample React app and the cdk code) to the repository using standard git commands.
 
 ## Useful commands
 
