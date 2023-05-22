@@ -22,10 +22,12 @@ export class AmplifyInfraStack extends Stack {
 
     const owner: string = process.env.GIT_USER || '';
     const repository: string = process.env.GIT_REPO || '';
+    // console.log('GIT_USER:', process.env.GIT_USER);
+    // console.log('GIT_REPO:', process.env.GIT_REPO);
 
     const sourceCodeProvider = new GitHubSourceCodeProvider({
       // GitHub token should be saved in a secure place, we recommend AWS Secret Manager:
-      oauthToken: SecretValue.secretsManager('GITHUB_TOKEN_KEY'), // replace GITHUB_TOKEN_KEY by the name of the Secrets Manager resource storing your GitHub token
+      oauthToken: SecretValue.secretsManager('github-access-token'), // replace github-access-token by the name of the Secrets Manager resource storing your GitHub token
       owner,
       repository,
     });

@@ -2,6 +2,7 @@
 
 ![AWS](https://img.shields.io/badge/AWS-%23FF9900.svg?style=for-the-badge&logo=amazon-aws&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white)
+![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
 
 Sample React application that will be hosted on AWS Amplify (created with _npx create-react-app_). we will be using AWS Cloud Development Kit (AWS CDK) to develop the infrastructure and the configurations required to host the application on Amplify.
 
@@ -20,7 +21,7 @@ Managed Service Providers that offer website hosting services will also benefit 
 ## Deployment
 
 ```sh
-cd ~/amplify-sample-app/amplify-infra	
+cd ~/amplify-sample-app/amplify-infra
 npm run build
 cdk deploy
 ```
