@@ -54,7 +54,7 @@ export class AmplifyInfraStack extends Stack {
     amplifyApp.applyRemovalPolicy(RemovalPolicy.DESTROY);
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const mainBranch = amplifyApp.addBranch("master", {
+    const mainBranch = amplifyApp.addBranch("main", {
       autoBuild: true, // set to true to automatically build the app on new pushes
       stage: "PRODUCTION",
     });
